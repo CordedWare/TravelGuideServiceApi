@@ -20,7 +20,7 @@ import com.travelguide.util.UnsafeRunTimedIOApp.*
 
 object TravelGuideService extends App {
 
-    /** FUNCTIONAL: делаем его согласованным (concurrent)
+    /** делаем его согласованным (concurrent)
      */
     def travelGuide(data: WikiDataAccessInterface, attractionName: String, lang: String): IO[Option[TravelGuide]] = {
         for {
@@ -43,7 +43,7 @@ object TravelGuideService extends App {
 
     def populationScore(guide: TravelGuide): Int = guide.attraction.location.population
 
-    /** FUNCTIONAL: поиск лучшего путеводителя
+    /** поиск лучшего путеводителя
      * требования:
      * - 30 баллов за описание
      * - 10 баллов за каждого исполнителя и фильм (максимум 40 баллов)
@@ -53,8 +53,7 @@ object TravelGuideService extends App {
     def guideScore(guide: TravelGuide): Int = {
         val descriptionScore = guide.attraction.description.map(_ => 30).getOrElse(0)
         val quantityScore    = Math.min(40, guide.subjects.size * 10)
-
-        val totalFollowers = guide.subjects
+        val totalFollowers   = guide.subjects
             .map {
                 case Artist(_, followers) => followers
                 case _                    => 0
@@ -71,8 +70,8 @@ object TravelGuideService extends App {
         descriptionScore + quantityScore + followersScore + boxOfficeScore
     }
 
-    /** ШАГ 7: сделайте это быстрее
-     * нам не нужно выполнять запросы, мы можем кэшировать их локально
+    /**
+     * кэшируем локально
      */
     unsafeRunTimedIO(
         connectionResource.use(connection =>
